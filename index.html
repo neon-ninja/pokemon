@@ -6,8 +6,12 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"
+        integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js"
+        integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 </head>
 
@@ -15,27 +19,28 @@
     <h1 id="title">Pokémon</h1>
     <div id="controls">
         Starts with: <input id="starts" />
-        Ends with: <input id="ends" />
-        Contains: <input id="contains" />
-        Length: <input id="length" type="number" min=1 max=16 />
-        Exclude: <input id="exclude" />
-        Include: <input id="include" />
-    </div>
+        Ends with: <input id="ends" /><br>
+        Contains regex: <input id="contains" />
+        Length: <input id="length" type="number" min=1 max=16 /><br>
+        Exclude (any order): <input id="exclude" />
+        Include (any order): <input id="include" /><br>
+    </div><br>
     <div id="pkmn"></div>
     <script>
         function str_contains_chars(str, chars) {
             var result = chars.split("").map(c => str.includes(c))
             return result
         }
-        $("input").on("input, change, keyup", function() {
-            var filtered_result = pkmn.filter(function(name) {
+        $("input").on("input, change, keyup", function () {
+            var regex = new RegExp($("#contains").val(), "i")
+            var filtered_result = pkmn.filter(function (name) {
                 name = name.toLowerCase()
-                return  name.startsWith($("#starts").val().toLowerCase()) &&
-                        name.endsWith($("#ends").val().toLowerCase()) &&
-                        name.includes($("#contains").val().toLowerCase()) &&
-                        ($("#length").val() ? name.length == $("#length").val() : true) &&
-                        !str_contains_chars(name, $("#exclude").val().toLowerCase()).includes(true) && 
-                        !str_contains_chars(name, $("#include").val().toLowerCase()).includes(false)
+                return name.startsWith($("#starts").val().toLowerCase()) &&
+                    name.endsWith($("#ends").val().toLowerCase()) &&
+                    regex.test(name) &&
+                    ($("#length").val() ? name.length == $("#length").val() : true) &&
+                    str_contains_chars(name, $("#exclude").val().toLowerCase()).every(e => e == false) &&
+                    str_contains_chars(name, $("#include").val().toLowerCase()).every(e => e == true)
             })
             console.log(`Filtered down to ${filtered_result.length}`)
             $("#pkmn").text(filtered_result.join("\n"))
